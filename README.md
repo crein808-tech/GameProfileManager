@@ -1,3 +1,4 @@
+<img width="644" height="743" alt="Screenshot 2026-04-24 221846" src="https://github.com/user-attachments/assets/4d50b186-8e79-47da-816e-58469ebd2e64" />
 # Game Profile Manager
 
 A unified desktop tool for managing NVIDIA driver profiles, DLSS/FSR/XeSS DLL versions, and DLSSTweaks — all from one window.
