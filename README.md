@@ -1,4 +1,4 @@
-<img width="644" height="743" alt="Screenshot 2026-04-24 221846" src="https://github.com/user-attachments/assets/4d50b186-8e79-47da-816e-58469ebd2e64" />
+
 # Game Profile Manager
 
 A unified desktop tool for managing NVIDIA driver profiles, DLSS/FSR/XeSS DLL versions, and DLSSTweaks — all from one window.
@@ -30,6 +30,17 @@ PC gamers who tweak GPU settings typically juggle three separate tools: [NVIDIA 
 - Automatic Steam game detection + manual game folder picker
 - Persistent settings — remembers your manual games, tool paths, and window layout
 - DLL descriptions in dropdowns so you know what each technology does
+
+### Preview Images
+
+<img width="1375" height="890" alt="Screenshot 2026-04-24 221828" src="https://github.com/user-attachments/assets/7133a7ac-e0f3-4bb2-a24a-f1cd6ba2b637" />
+<img width="644" height="743" alt="Screenshot 2026-04-24 221846" src="https://github.com/user-attachments/assets/e1248281-90da-48a2-be30-f0a85f30d133" />
+<img width="665" height="662" alt="Screenshot 2026-04-24 222030" src="https://github.com/user-attachments/assets/be20be3c-3355-401d-8d55-a56269b82973" />
+<img width="622" height="690" alt="Screenshot 2026-04-24 222048" src="https://github.com/user-attachments/assets/317edea1-20ec-42fc-82a3-bec22b0a74ae" />
+
+
+
+
 
 ## Requirements
 
