@@ -1,6 +1,7 @@
 # Game Profile Manager
 
 A unified desktop tool for managing NVIDIA driver profiles, DLSS/FSR/XeSS DLL versions, and DLSSTweaks — all from one window.
+Something I had a need for and hyperfixated on while leveraging Ai. Not meant to be cutting edge, just working. Please let me know of any changes you would like to see.
 
 PC gamers who tweak GPU settings typically juggle three separate tools: [NVIDIA Profile Inspector](https://github.com/Orbmu2k/nvidiaProfileInspector), [DLSS Swapper](https://github.com/beeradmoore/dlss-swapper), and [DLSSTweaks](https://github.com/emoose/DLSSTweaks). Game Profile Manager brings them together around a shared game list so you can configure everything in one place.
 
