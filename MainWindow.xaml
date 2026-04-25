@@ -1,0 +1,287 @@
+<Window x:Class="GameProfileManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        mc:Ignorable="d"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        Title="Game Profile Manager" Height="650" Width="1050" MinWidth="800" MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E2E">
+    <Window.Resources>
+        <Style x:Key="SidebarHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="12,12,12,8"/>
+        </Style>
+        <Style x:Key="TabHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+        </Style>
+        <Style x:Key="SectionLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#A6ADC8"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,8,0,4"/>
+        </Style>
+        <Style x:Key="AccentButton" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+        <Style x:Key="RevertButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="Background" Value="#F38BA8"/>
+            <Setter Property="Foreground" Value="#1E1E2E"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+        <Style x:Key="WarnButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="Background" Value="#F9E2AF"/>
+            <Setter Property="Foreground" Value="#1E1E2E"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+        <Style x:Key="SubtleButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="Background" Value="#45475A"/>
+            <Setter Property="Foreground" Value="#CDD6F4"/>
+            <Setter Property="Margin" Value="0,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="1"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Sidebar: Game List -->
+        <Border Grid.Column="0" Background="#181825">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource SidebarHeader}" Text="Games"/>
+                <TextBox x:Name="GameSearchBox" DockPanel.Dock="Top" Margin="12,0,12,8"
+                         ui:ControlHelper.PlaceholderText="Search games..."
+                         TextChanged="GameSearchBox_TextChanged"/>
+                <Button DockPanel.Dock="Bottom" Content="+ Add Game" Margin="12,4,12,8"
+                        Style="{StaticResource SubtleButton}" Click="AddGame_Click"/>
+                <Button DockPanel.Dock="Bottom" Content="Refresh Games" Margin="12,8,12,0"
+                        Style="{StaticResource SubtleButton}" Click="RefreshGames_Click"/>
+                <ListBox x:Name="GameList" Background="Transparent" BorderThickness="0"
+                         Foreground="#CDD6F4" FontSize="13" Padding="4"
+                         SelectionChanged="GameList_SelectionChanged"/>
+            </DockPanel>
+        </Border>
+
+        <!-- Divider -->
+        <Border Grid.Column="1" Background="#313244"/>
+
+        <!-- Content: Tool Tabs -->
+        <TabControl x:Name="ToolTabs" Grid.Column="2" Background="Transparent" BorderThickness="0"
+                    Padding="0" Margin="0">
+
+            <!-- NPI Tab -->
+            <TabItem Header="NVIDIA Profile">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel x:Name="NpiPanel" MaxWidth="600">
+                        <TextBlock Style="{StaticResource TabHeader}" Text="NVIDIA Profile Inspector"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,16"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                                NVIDIA Profile Inspector lets you tweak per-game driver settings that aren't
+                                exposed in the NVIDIA Control Panel — things like texture filtering, pre-rendered
+                                frames, and SLI bits.
+                                <LineBreak/><LineBreak/>
+                                <Run FontWeight="SemiBold" Foreground="#89B4FA">How to use:</Run>
+                                <LineBreak/>
+                                1. Select a game from the sidebar.
+                                <LineBreak/>
+                                2. Click <Run FontWeight="SemiBold">Build Profile</Run> to open the visual
+                                profile editor — pick VSync, texture filtering, power management, and other
+                                settings from dropdowns, then apply directly or save as a .nip file.
+                                <LineBreak/>
+                                3. Click <Run FontWeight="SemiBold">Import .nip Profile</Run> to apply an
+                                existing .nip file. A backup is saved automatically before applying.
+                                <LineBreak/>
+                                4. Click <Run FontWeight="SemiBold">Export Current Profile</Run> to save your
+                                current driver settings to a .nip file you can share or reuse.
+                                <LineBreak/>
+                                5. Click <Run FontWeight="SemiBold">Revert to Backup</Run> to undo the last
+                                import and restore your previous settings.
+                                <LineBreak/><LineBreak/>
+                                <Run FontStyle="Italic">Note: NPI requires administrator access — you'll see a
+                                UAC prompt each time.</Run>
+                            </TextBlock>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="CURRENT PROFILE"/>
+                        <Border Background="#313244" CornerRadius="6" Padding="16,12" Margin="0,0,0,12">
+                            <TextBlock x:Name="NpiCurrentProfile" Text="No game selected"
+                                       Foreground="#CDD6F4" FontSize="14"/>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="ACTIONS"/>
+                        <Button Content="Build Profile" Style="{StaticResource WarnButton}" Click="NpiBuildProfile_Click"/>
+                        <Button Content="Open NPI" Style="{StaticResource AccentButton}" Click="NpiOpen_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- DLL Swap Tab -->
+            <TabItem Header="DLL Swap">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel x:Name="DllPanel" MaxWidth="600">
+                        <TextBlock Style="{StaticResource TabHeader}" Text="DLSS / FSR / XeSS"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,16"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                                Swap the upscaling and frame generation DLLs in your games to different versions.
+                                Newer versions can improve image quality or fix bugs; older versions sometimes
+                                perform better. Supports DLSS (Super Resolution, Frame Gen, Ray Reconstruction),
+                                AMD FSR 3.1, and Intel XeSS.
+                                <LineBreak/><LineBreak/>
+                                <Run FontWeight="SemiBold" Foreground="#89B4FA">How to use:</Run>
+                                <LineBreak/>
+                                1. Select a game — any DLLs found in its directory appear under
+                                <Run FontWeight="SemiBold">Detected DLLs</Run>.
+                                <LineBreak/>
+                                2. Pick which DLL to swap from the <Run FontWeight="SemiBold">Select DLL</Run>
+                                dropdown.
+                                <LineBreak/>
+                                3. Choose a version from <Run FontWeight="SemiBold">Target Version</Run>
+                                (sorted newest first).
+                                <LineBreak/>
+                                4. Click <Run FontWeight="SemiBold">Swap DLL</Run> — the original is backed up
+                                automatically, the new version is downloaded and verified (MD5), then placed in
+                                the game folder.
+                                <LineBreak/>
+                                5. Click <Run FontWeight="SemiBold">Revert to Original</Run> to restore the
+                                backed-up DLL at any time.
+                                <LineBreak/><LineBreak/>
+                                <Run FontStyle="Italic" Foreground="#F38BA8">Games with Easy Anti-Cheat, BattlEye,
+                                or Vanguard are automatically blocked to protect your account.</Run>
+                            </TextBlock>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="DETECTED DLLs"/>
+                        <Border Background="#313244" CornerRadius="6" Padding="16,12" Margin="0,0,0,12">
+                            <TextBlock x:Name="DllDetectedList" Text="No game selected"
+                                       Foreground="#CDD6F4" FontSize="13"/>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="SELECT DLL"/>
+                        <ComboBox x:Name="DllTypeCombo" Margin="0,0,0,4" IsEnabled="False"
+                                  HorizontalAlignment="Stretch"
+                                  SelectionChanged="DllTypeCombo_SelectionChanged"/>
+                        <TextBlock x:Name="DllTypeDesc" Foreground="#A6ADC8" FontSize="12" FontStyle="Italic"
+                                   TextWrapping="Wrap" Margin="4,0,0,12"/>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="TARGET VERSION"/>
+                        <ComboBox x:Name="DllVersionCombo" Margin="0,0,0,4" IsEnabled="False"
+                                  HorizontalAlignment="Stretch"
+                                  SelectionChanged="DllVersionCombo_SelectionChanged"/>
+                        <TextBlock x:Name="DllVersionDesc" Foreground="#A6ADC8" FontSize="12" FontStyle="Italic"
+                                   TextWrapping="Wrap" Margin="4,0,0,12"/>
+                        <Button Content="Swap DLL" Style="{StaticResource AccentButton}" Click="DllSwap_Click"/>
+                        <Button Content="Revert to Original" Style="{StaticResource RevertButton}" Click="DllRevert_Click"/>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="BACKUP STATUS" Margin="0,16,0,4"/>
+                        <Border Background="#313244" CornerRadius="6" Padding="16,12">
+                            <TextBlock x:Name="DllBackupStatus" Text="No backup" Foreground="#A6ADC8" FontSize="13"/>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- DLSSTweaks Tab -->
+            <TabItem Header="DLSSTweaks">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel x:Name="TweaksPanel" MaxWidth="600">
+                        <TextBlock Style="{StaticResource TabHeader}" Text="DLSSTweaks"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,16"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                                DLSSTweaks is a wrapper DLL by emoose that lets you force DLAA, override DLSS
+                                quality presets, tweak scaling ratios, and control other DLSS behaviors that
+                                games don't expose in their settings menus.
+                                <LineBreak/><LineBreak/>
+                                <Run FontWeight="SemiBold" Foreground="#89B4FA">How to use:</Run>
+                                <LineBreak/>
+                                1. Select a game from the sidebar.
+                                <LineBreak/>
+                                2. Click <Run FontWeight="SemiBold">Deploy DLSSTweaks</Run> to copy the proxy
+                                DLL (dxgi.dll) and config file (dlsstweaks.ini) into the game's directory.
+                                <LineBreak/>
+                                3. Click <Run FontWeight="SemiBold">Edit Config (.ini)</Run> to open the config
+                                in your default text editor. Changes can be made while the game is running — you
+                                may need to toggle DLSS settings in-game to reload.
+                                <LineBreak/>
+                                4. Click <Run FontWeight="SemiBold">Remove DLSSTweaks</Run> to delete the proxy
+                                DLL and config from the game folder. Your original game files are never modified.
+                                <LineBreak/><LineBreak/>
+                                <Run FontStyle="Italic">If dxgi.dll doesn't work for a game, you can manually rename
+                                the deployed DLL to XInput1_3.dll, XInput1_4.dll, or winmm.dll as alternatives.</Run>
+                            </TextBlock>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="DEPLOYMENT STATUS"/>
+                        <Border Background="#313244" CornerRadius="6" Padding="16,12" Margin="0,0,0,12">
+                            <TextBlock x:Name="TweaksStatus" Text="No game selected"
+                                       Foreground="#CDD6F4" FontSize="13"/>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="ACTIONS"/>
+                        <Button Content="Deploy DLSSTweaks" Style="{StaticResource AccentButton}" Click="TweaksDeploy_Click"/>
+                        <Button Content="Edit Config (.ini)" Style="{StaticResource WarnButton}" Click="TweaksEditConfig_Click"/>
+                        <Button Content="Remove DLSSTweaks" Style="{StaticResource RevertButton}" Click="TweaksRemove_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Backups Tab -->
+            <TabItem Header="Backups">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel x:Name="BackupsPanel" MaxWidth="600">
+                        <TextBlock Style="{StaticResource TabHeader}" Text="Backup Manager"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,16"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                                Every time you import an NPI profile or swap a DLL, the original is automatically
+                                backed up here. This tab shows all backups for the selected game so you can
+                                restore or clean them up.
+                                <LineBreak/><LineBreak/>
+                                <Run FontWeight="SemiBold" Foreground="#89B4FA">How to use:</Run>
+                                <LineBreak/>
+                                1. Select a game from the sidebar — all its backups appear in the list.
+                                <LineBreak/>
+                                2. Each entry shows the type (<Run FontWeight="SemiBold">[NpiProfile]</Run> or
+                                <Run FontWeight="SemiBold">[Dll]</Run>), filename, size, and age.
+                                <LineBreak/>
+                                3. Select a backup and click <Run FontWeight="SemiBold">Restore Selected
+                                Snapshot</Run> to put it back. For NPI profiles, your current state is
+                                auto-saved before restoring so you never lose anything.
+                                <LineBreak/>
+                                4. Click <Run FontWeight="SemiBold">Delete Selected Snapshot</Run> to
+                                permanently remove a backup you no longer need.
+                                <LineBreak/><LineBreak/>
+                                <Run FontStyle="Italic">Backups are stored in
+                                %LocalAppData%\GameProfileManager\backups\</Run>
+                            </TextBlock>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="SNAPSHOTS"/>
+                        <ListBox x:Name="BackupsList" Background="#313244" BorderThickness="0"
+                                 Foreground="#CDD6F4" MinHeight="200" Margin="0,0,0,12"/>
+                        <Button Content="Restore Selected Snapshot" Style="{StaticResource AccentButton}" Click="BackupRestore_Click"/>
+                        <Button Content="Delete Selected Snapshot" Style="{StaticResource RevertButton}" Click="BackupDelete_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="1" Grid.ColumnSpan="3" Background="#181825" Padding="12,6">
+            <DockPanel>
+                <TextBlock x:Name="StatusText" Text="Ready" Foreground="#6C7086" FontSize="12"
+                           DockPanel.Dock="Left"/>
+                <TextBlock x:Name="ManifestStatus" Text="" Foreground="#6C7086" FontSize="12"
+                           DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

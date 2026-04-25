@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>C:\dev\gpm-build\obj\</BaseIntermediateOutputPath>
+    <BaseOutputPath>C:\dev\gpm-build\bin\</BaseOutputPath>
+  </PropertyGroup>
+</Project>
