@@ -28,7 +28,8 @@ public static class HardwareDetector
                 {
                     Name = name,
                     VramBytes = ram,
-                    Tier = ClassifyTier(name, ram)
+                    Tier = ClassifyTier(name, ram),
+                    Vendor = ClassifyVendor(name)
                 };
 
                 // Pick the GPU with the most VRAM (discrete over integrated)
@@ -97,6 +98,18 @@ public static class HardwareDetector
             >= 6 => GpuTier.Mid,
             _ => GpuTier.Budget
         };
+    }
+
+    private static GpuVendor ClassifyVendor(string name)
+    {
+        var n = name.ToUpperInvariant();
+        if (n.Contains("NVIDIA") || n.Contains("GEFORCE") || n.Contains("RTX") || n.Contains("GTX"))
+            return GpuVendor.Nvidia;
+        if (n.Contains("AMD") || n.Contains("RADEON") || n.Contains("RX "))
+            return GpuVendor.Amd;
+        if (n.Contains("INTEL") || n.Contains("ARC ") || n.Contains("UHD") || n.Contains("IRIS"))
+            return GpuVendor.Intel;
+        return GpuVendor.Unknown;
     }
 
     private static bool IsHighEndGpu(string name)

@@ -88,6 +88,18 @@ public partial class MainWindow : Window
             ? $"{_allGames.Count} games  •  {_gpu}"
             : $"{_allGames.Count} games detected";
 
+        if (_gpu is not null && !_gpu.IsNvidia)
+        {
+            var vendorNote = $"Detected GPU: {_gpu.Name} ({_gpu.Vendor})\n\n";
+            NpiPanel.Children.Insert(0, CreateVendorWarning(
+                vendorNote + "NVIDIA Profile Inspector requires an NVIDIA GPU. " +
+                "This tab's features will not work with your current hardware."));
+            TweaksPanel.Children.Insert(0, CreateVendorWarning(
+                vendorNote + "DLSSTweaks requires NVIDIA DLSS. " +
+                "This tab's features will not work with your current hardware.\n\n" +
+                "DLL Swap still works — you can swap FSR and XeSS DLLs on any GPU."));
+        }
+
         if (!_npi.IsAvailable)
             NpiCurrentProfile.Text = $"NPI not found at:\n{_settings.NpiExePath}";
 
@@ -576,6 +588,29 @@ public partial class MainWindow : Window
         StatusText.Text = ok ? $"Deleted: {selected.FileName}" : "Delete failed.";
         RefreshBackupsList();
         UpdateDllBackupStatus();
+    }
+
+    private static Border CreateVendorWarning(string message)
+    {
+        return new Border
+        {
+            Background = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#302020")),
+            BorderBrush = new System.Windows.Media.SolidColorBrush(
+                (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F38BA8")),
+            BorderThickness = new Thickness(1, 1, 1, 1),
+            CornerRadius = new CornerRadius(6),
+            Padding = new Thickness(14, 10, 14, 10),
+            Margin = new Thickness(0, 0, 0, 16),
+            Child = new TextBlock
+            {
+                Text = message,
+                Foreground = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#F38BA8")),
+                FontSize = 13,
+                TextWrapping = TextWrapping.Wrap
+            }
+        };
     }
 }
 
