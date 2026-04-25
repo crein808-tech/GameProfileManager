@@ -43,9 +43,28 @@ public class DlssTweaksService
         return new TweaksStatus(false, null, null, "Not deployed");
     }
 
+    private static bool IsProtectedDirectory(string path)
+    {
+        var full = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar);
+        var blocked = new[]
+        {
+            Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+            Environment.GetFolderPath(Environment.SpecialFolder.System),
+            Environment.GetFolderPath(Environment.SpecialFolder.SystemX86),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+            Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+        };
+        return blocked.Any(b =>
+            !string.IsNullOrEmpty(b) && full.StartsWith(b, StringComparison.OrdinalIgnoreCase)
+            && (full.Length == b.Length || full[b.Length] == Path.DirectorySeparatorChar));
+    }
+
     public string Deploy(GameEntry game)
     {
         var targetDir = game.InstallDir;
+
+        if (IsProtectedDirectory(targetDir))
+            return "BLOCKED: Cannot deploy to a Windows system directory.";
         var dllTarget = Path.Combine(targetDir, "dxgi.dll");
         var iniTarget = Path.Combine(targetDir, "dlsstweaks.ini");
 

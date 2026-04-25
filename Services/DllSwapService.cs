@@ -25,6 +25,11 @@ public class DllSwapService
         GameEntry game, DetectedDll target, DllRecord newVersion,
         IProgress<string>? progress = null)
     {
+        var fullDir = Path.GetFullPath(game.InstallDir);
+        var winDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        if (!string.IsNullOrEmpty(winDir) && fullDir.StartsWith(winDir, StringComparison.OrdinalIgnoreCase))
+            return SwapResult.Fail("BLOCKED: Cannot swap DLLs in a Windows system directory.");
+
         progress?.Report("Checking for anti-cheat...");
         var antiCheat = await Task.Run(() => AntiCheatDetector.Detect(game.InstallDir));
         if (antiCheat is not null)
@@ -46,9 +51,10 @@ public class DllSwapService
             return SwapResult.Fail($"Download failed: {ex.Message}");
         }
 
+        var zipHash = Convert.ToHexString(SHA256.HashData(zipBytes));
         var zipMd5 = Convert.ToHexString(MD5.HashData(zipBytes));
         if (!zipMd5.Equals(newVersion.ZipMd5Hash, StringComparison.OrdinalIgnoreCase))
-            return SwapResult.Fail($"Download integrity check failed.\nExpected: {newVersion.ZipMd5Hash}\nGot: {zipMd5}");
+            return SwapResult.Fail($"Download integrity check failed (MD5).\nExpected: {newVersion.ZipMd5Hash}\nGot: {zipMd5}");
 
         progress?.Report("Extracting and replacing DLL...");
         try
@@ -58,19 +64,21 @@ public class DllSwapService
 
             var expectedFilename = DllTypeMap.Filenames[target.Type];
             var entry = archive.Entries.FirstOrDefault(e =>
-                e.Name.Equals(expectedFilename, StringComparison.OrdinalIgnoreCase));
+                e.FullName.Equals(expectedFilename, StringComparison.OrdinalIgnoreCase)
+                && !e.FullName.Contains("..") && !Path.IsPathRooted(e.FullName));
 
             if (entry is null)
-                return SwapResult.Fail($"Zip does not contain {expectedFilename}");
+                return SwapResult.Fail($"Zip does not contain {expectedFilename} at root level");
 
             using var entryStream = entry.Open();
             using var dllBytes = new MemoryStream();
             await entryStream.CopyToAsync(dllBytes);
             var dllData = dllBytes.ToArray();
 
+            var dllHash = Convert.ToHexString(SHA256.HashData(dllData));
             var dllMd5 = Convert.ToHexString(MD5.HashData(dllData));
             if (!dllMd5.Equals(newVersion.Md5Hash, StringComparison.OrdinalIgnoreCase))
-                return SwapResult.Fail($"Extracted DLL hash mismatch.\nExpected: {newVersion.Md5Hash}\nGot: {dllMd5}");
+                return SwapResult.Fail($"Extracted DLL hash mismatch (MD5).\nExpected: {newVersion.Md5Hash}\nGot: {dllMd5}");
 
             File.WriteAllBytes(target.FullPath, dllData);
         }

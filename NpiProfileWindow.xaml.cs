@@ -259,6 +259,7 @@ public partial class NpiProfileWindow : Window
     private static string SanitizeFileName(string name)
     {
         var invalid = Path.GetInvalidFileNameChars();
-        return string.Join("_", name.Split(invalid));
+        var sanitized = string.Join("_", name.Split(invalid));
+        return sanitized.Replace("..", "_");
     }
 }
