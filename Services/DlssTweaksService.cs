@@ -35,12 +35,39 @@ public class DlssTweaksService
         var hasIni = File.Exists(iniPath);
 
         if (deployedDll is not null && hasIni)
-            return new TweaksStatus(true, deployedDll, iniPath, Path.GetFileName(deployedDll));
+        {
+            var summary = Path.GetFileName(deployedDll);
+            if (IsDeployedOutdated(deployedDll))
+                summary += " (update available — redeploy to upgrade)";
+            return new TweaksStatus(true, deployedDll, iniPath, summary);
+        }
         if (deployedDll is not null || hasIni)
             return new TweaksStatus(false, deployedDll, hasIni ? iniPath : null,
                 "Partial install — missing " + (deployedDll is null ? "proxy DLL" : "ini"));
 
         return new TweaksStatus(false, null, null, "Not deployed");
+    }
+
+    public bool IsSourceNewer(GameEntry game)
+    {
+        var deployedDll = FindDeployedDll(game.InstallDir);
+        return deployedDll is not null && IsDeployedOutdated(deployedDll);
+    }
+
+    private bool IsDeployedOutdated(string deployedDllPath)
+    {
+        try
+        {
+            var source = FileVersionInfo.GetVersionInfo(_proxyDllSource);
+            var deployed = FileVersionInfo.GetVersionInfo(deployedDllPath);
+            var sourceVer = new Version(source.FileMajorPart, source.FileMinorPart, source.FileBuildPart, source.FilePrivatePart);
+            var deployedVer = new Version(deployed.FileMajorPart, deployed.FileMinorPart, deployed.FileBuildPart, deployed.FilePrivatePart);
+            return sourceVer > deployedVer;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private static bool IsProtectedDirectory(string path)
