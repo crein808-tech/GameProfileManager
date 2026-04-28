@@ -216,6 +216,10 @@
                                 <LineBreak/>
                                 4. Click <Run FontWeight="SemiBold">Remove DLSSTweaks</Run> to delete the proxy
                                 DLL and config from the game folder. Your original game files are never modified.
+                                <LineBreak/>
+                                5. Use <Run FontWeight="SemiBold">Frame Gen DLL Override</Run> to select and cache
+                                a specific nvngx_dlssg.dll version. DLSSTweaks redirects the game's Frame Gen load
+                                to that version at runtime — no game files are changed.
                                 <LineBreak/><LineBreak/>
                                 <Run FontStyle="Italic">If dxgi.dll doesn't work for a game, you can manually rename
                                 the deployed DLL to XInput1_3.dll, XInput1_4.dll, or winmm.dll as alternatives.</Run>
@@ -230,6 +234,30 @@
                         <Button Content="Deploy DLSSTweaks" Style="{StaticResource AccentButton}" Click="TweaksDeploy_Click"/>
                         <Button Content="Edit Config (.ini)" Style="{StaticResource WarnButton}" Click="TweaksEditConfig_Click"/>
                         <Button Content="Remove DLSSTweaks" Style="{StaticResource RevertButton}" Click="TweaksRemove_Click"/>
+
+                        <!-- Frame Gen DLL Override -->
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="FRAME GEN DLL OVERRIDE" Margin="0,20,0,4"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,10"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="11" TextWrapping="Wrap" LineHeight="18">
+                                Override which Frame Gen DLL version DLSSTweaks loads at runtime — no game file changes needed.
+                                The DLL is downloaded once and cached locally. Requires DLSSTweaks to be deployed to the selected game.
+                            </TextBlock>
+                        </Border>
+                        <ComboBox x:Name="FgVersionCombo" DisplayMemberPath="Display"
+                                  IsEnabled="False" Margin="0,0,0,8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <Button x:Name="FgApplyBtn" Content="Apply Override"
+                                    Style="{StaticResource AccentButton}" Click="FgApplyOverride_Click"
+                                    IsEnabled="False" Margin="0,0,8,0"/>
+                            <Button x:Name="FgClearBtn" Content="Clear Override"
+                                    Style="{StaticResource RevertButton}" Click="FgClearOverride_Click"
+                                    IsEnabled="False"/>
+                        </StackPanel>
+                        <Border Background="#313244" CornerRadius="6" Padding="12,8" Margin="0,0,0,4">
+                            <TextBlock x:Name="FgOverrideStatus" Foreground="#CDD6F4" FontSize="12"
+                                       TextWrapping="Wrap" Text="No override active"/>
+                        </Border>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

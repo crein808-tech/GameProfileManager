@@ -10,12 +10,14 @@ public partial class TweaksConfigWindow : Window
     private readonly string _iniPath;
     private readonly List<TweaksSetting> _settings;
     private readonly Dictionary<TweaksSetting, FrameworkElement> _controls = new();
+    private readonly Dictionary<string, string> _pathOverrides;
 
     public TweaksConfigWindow(string iniPath)
     {
         _iniPath = iniPath;
         _settings = TweaksConfigParser.GetSettingsTemplate();
         TweaksConfigParser.LoadFromIni(iniPath, _settings);
+        _pathOverrides = TweaksConfigParser.LoadPathOverrides(iniPath);
 
         InitializeComponent();
         BuildUI();
@@ -137,7 +139,7 @@ public partial class TweaksConfigWindow : Window
 
         try
         {
-            TweaksConfigParser.SaveToIni(_iniPath, _settings);
+            TweaksConfigParser.SaveToIni(_iniPath, _settings, _pathOverrides);
             DialogResult = true;
             Close();
         }

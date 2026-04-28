@@ -12,11 +12,16 @@ public partial class MainWindow : Window
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "GameProfileManager", "backups");
 
+    private static readonly string FgCacheDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "GameProfileManager", "fg_cache");
+
     private readonly AppSettings _settings;
     private readonly NpiService _npi;
     private readonly DllSwapService _dllSwap;
     private readonly BackupService _backups;
     private readonly DlssTweaksService _tweaks;
+    private readonly FgOverrideService _fgOverride;
     private GpuInfo? _gpu;
     private DllManifest? _manifest;
     private List<GameEntry> _allGames = [];
@@ -32,6 +37,7 @@ public partial class MainWindow : Window
         _dllSwap = new DllSwapService(BackupBaseDir);
         _backups = new BackupService(BackupBaseDir);
         _tweaks = new DlssTweaksService(_settings.DlssTweaksDll, _settings.DlssTweaksIni);
+        _fgOverride = new FgOverrideService(FgCacheDir);
         InitializeComponent();
         RestoreWindowState();
         Loaded += OnLoaded;
@@ -112,6 +118,8 @@ public partial class MainWindow : Window
         {
             ManifestStatus.Text = "Manifest unavailable";
         }
+
+        PopulateFgVersionCombo();
     }
 
     private void RefreshGameList(string? filter = null)
@@ -429,6 +437,8 @@ public partial class MainWindow : Window
         TweaksStatus.Text = (status.IsDeployed
             ? $"Deployed: {status.Summary}\nINI: {status.IniPath}"
             : status.Summary) + tweaksTip;
+
+        UpdateFgOverrideStatus();
     }
 
     private async void TweaksDeploy_Click(object sender, RoutedEventArgs e)
@@ -489,6 +499,109 @@ public partial class MainWindow : Window
         var result = _tweaks.Remove(_selectedGame);
         StatusText.Text = result;
         UpdateTweaksStatus();
+    }
+
+    private void PopulateFgVersionCombo()
+    {
+        if (_manifest is null)
+        {
+            FgVersionCombo.IsEnabled = false;
+            return;
+        }
+
+        var records = _manifest.DlssG
+            .Where(r => !r.IsDevFile)
+            .OrderByDescending(r => r.VersionNumber)
+            .Select((r, i) => new DllVersionComboItem(r, IsRecommended: i == 0))
+            .ToList();
+
+        FgVersionCombo.ItemsSource = records;
+        FgVersionCombo.IsEnabled = records.Count > 0;
+        if (records.Count > 0)
+            FgVersionCombo.SelectedIndex = 0;
+    }
+
+    private void UpdateFgOverrideStatus()
+    {
+        if (_selectedGame is null)
+        {
+            FgOverrideStatus.Text = "No game selected.";
+            FgApplyBtn.IsEnabled = false;
+            FgClearBtn.IsEnabled = false;
+            return;
+        }
+
+        var status = _tweaks.GetStatus(_selectedGame);
+        if (!status.IsDeployed || status.IniPath is null)
+        {
+            FgOverrideStatus.Text = "Deploy DLSSTweaks first.";
+            FgApplyBtn.IsEnabled = false;
+            FgClearBtn.IsEnabled = false;
+            return;
+        }
+
+        FgApplyBtn.IsEnabled = FgVersionCombo.IsEnabled;
+
+        var overrides = TweaksConfigParser.LoadPathOverrides(status.IniPath);
+        if (overrides.TryGetValue("nvngx_dlssg", out var activePath))
+        {
+            FgOverrideStatus.Text = $"Active: {activePath}";
+            FgClearBtn.IsEnabled = true;
+        }
+        else
+        {
+            FgOverrideStatus.Text = "No override active.";
+            FgClearBtn.IsEnabled = false;
+        }
+    }
+
+    private async void FgApplyOverride_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedGame is null) return;
+
+        var status = _tweaks.GetStatus(_selectedGame);
+        if (!status.IsDeployed || status.IniPath is null)
+        {
+            StatusText.Text = "Deploy DLSSTweaks first.";
+            return;
+        }
+
+        if (FgVersionCombo.SelectedItem is not DllVersionComboItem selected)
+        {
+            StatusText.Text = "Select a Frame Gen version first.";
+            return;
+        }
+
+        FgApplyBtn.IsEnabled = false;
+        FgClearBtn.IsEnabled = false;
+
+        try
+        {
+            var progress = new Progress<string>(msg => FgOverrideStatus.Text = msg);
+            var cachedPath = await _fgOverride.EnsureCachedAsync(selected.Record, progress);
+            TweaksConfigParser.WritePathOverride(status.IniPath, "nvngx_dlssg", cachedPath);
+            StatusText.Text = $"FG override applied: v{selected.Record.Version}";
+            UpdateFgOverrideStatus();
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"FG override failed: {ex.Message}";
+            FgOverrideStatus.Text = $"Error: {ex.Message}";
+            FgApplyBtn.IsEnabled = FgVersionCombo.IsEnabled;
+        }
+    }
+
+    private void FgClearOverride_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedGame is null) return;
+
+        var status = _tweaks.GetStatus(_selectedGame);
+        if (!status.IsDeployed || status.IniPath is null)
+            return;
+
+        TweaksConfigParser.WritePathOverride(status.IniPath, "nvngx_dlssg", null);
+        StatusText.Text = "FG override cleared.";
+        UpdateFgOverrideStatus();
     }
 
     // --- Game Refresh ---
