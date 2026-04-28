@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace GameProfileManager.Models;
@@ -30,6 +31,9 @@ public class DllManifest
 
     [JsonPropertyName("xess_fg")]
     public List<DllRecord> XessFg { get; set; } = [];
+
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? Extra { get; set; }
 
     public List<DllRecord> GetRecords(DllType type) => type switch
     {
