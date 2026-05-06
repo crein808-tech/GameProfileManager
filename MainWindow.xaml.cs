@@ -88,7 +88,7 @@ public partial class MainWindow : Window
             InstallDir = m.InstallDir,
             Source = GameSource.Manual
         }).ToList();
-        _allGames = SteamDetectionService.DetectGames().Concat(_manualGames).OrderBy(g => g.Name).ToList();
+        _allGames = MergeDetectedGames().Concat(_manualGames).OrderBy(g => g.Name).ToList();
         RefreshGameList();
         StatusText.Text = _gpu is not null
             ? $"{_allGames.Count} games  •  {_gpu}"
@@ -140,15 +140,31 @@ public partial class MainWindow : Window
         var previousSelection = _selectedGame;
 
         GameList.Items.Clear();
-        var filtered = string.IsNullOrWhiteSpace(filter)
+        var visible = _settings.ShowHiddenGames
             ? _allGames
-            : _allGames.Where(g => g.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+            : _allGames.Where(g => !_settings.HiddenGamePaths.Contains(g.InstallDir)).ToList();
+
+        var filtered = (string.IsNullOrWhiteSpace(filter)
+            ? visible
+            : visible.Where(g => g.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)))
+            .OrderByDescending(g => _settings.FavoriteGamePaths.Contains(g.InstallDir))
+            .ThenBy(g => g.Name)
+            .ToList();
 
         foreach (var game in filtered)
-            GameList.Items.Add(game);
+            GameList.Items.Add(new GameListItem(game, _settings.FavoriteGamePaths.Contains(game.InstallDir)));
 
-        if (previousSelection is not null && filtered.Contains(previousSelection))
-            GameList.SelectedItem = previousSelection;
+        if (previousSelection is not null)
+        {
+            foreach (GameListItem item in GameList.Items)
+            {
+                if (item.Game == previousSelection)
+                {
+                    GameList.SelectedItem = item;
+                    break;
+                }
+            }
+        }
 
         _suppressSelectionChanged = false;
     }
@@ -163,7 +179,7 @@ public partial class MainWindow : Window
         if (_suppressSelectionChanged)
             return;
 
-        _selectedGame = GameList.SelectedItem as GameEntry;
+        _selectedGame = (GameList.SelectedItem as GameListItem)?.Game;
         if (_selectedGame is null)
             return;
 
@@ -173,6 +189,7 @@ public partial class MainWindow : Window
 
         await ScanSelectedGameDllsAsync();
         RefreshBackupsList();
+        RefreshHistoryList();
     }
 
     private void RefreshBackupsList()
@@ -184,6 +201,25 @@ public partial class MainWindow : Window
         var all = _backups.GetAllBackups(_selectedGame);
         foreach (var entry in all)
             BackupsList.Items.Add(entry);
+    }
+
+    private void RefreshHistoryList()
+    {
+        HistoryList.Items.Clear();
+        if (_selectedGame is null)
+            return;
+
+        var all = _backups.GetAllBackups(_selectedGame).Take(20);
+        foreach (var entry in all)
+        {
+            var ts = entry.CreatedUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm");
+            var sizeMb = entry.FileSize / (1024.0 * 1024.0);
+            var type = entry.Category == BackupCategory.NpiProfile ? "NpiProfile" : "DLL       ";
+            HistoryList.Items.Add($"{ts}  {type}  {entry.FileName}  ({sizeMb:F1} MB)");
+        }
+
+        if (HistoryList.Items.Count == 0)
+            HistoryList.Items.Add("No backup history for this game.");
     }
 
     private async Task ScanSelectedGameDllsAsync(DllType? preserveSelectedType = null)
@@ -284,7 +320,18 @@ public partial class MainWindow : Window
         DllVersionCombo.DisplayMemberPath = "Display";
         DllVersionCombo.IsEnabled = records.Count > 0;
         if (records.Count > 0)
-            DllVersionCombo.SelectedIndex = 0;
+        {
+            var pref = GetPreferredVersion(selected.Detected.Type);
+            var prefIdx = pref is not null ? records.FindIndex(r => r.Record.Version == pref) : -1;
+            DllVersionCombo.SelectedIndex = prefIdx >= 0 ? prefIdx : 0;
+        }
+    }
+
+    private string? GetPreferredVersion(DllType dllType)
+    {
+        if (_selectedGame is null) return null;
+        if (!_settings.PreferredDllVersions.TryGetValue(_selectedGame.InstallDir, out var prefs)) return null;
+        return prefs.TryGetValue(dllType.ToString(), out var v) ? v : null;
     }
 
     private void UpdateDllBackupStatus()
@@ -323,6 +370,63 @@ public partial class MainWindow : Window
             RefreshGameList(GameSearchBox.Text);
             StatusText.Text = $"Added: {name}";
         }
+    }
+
+    // --- Hide / Favorite ---
+
+    private void GameContextMenu_Opened(object sender, RoutedEventArgs e)
+    {
+        var game = (GameList.SelectedItem as GameListItem)?.Game;
+        if (game is null)
+        {
+            if (sender is ContextMenu cm) cm.IsOpen = false;
+            return;
+        }
+        ContextMenuFavorite.Header = _settings.FavoriteGamePaths.Contains(game.InstallDir)
+            ? "★ Unfavorite" : "★ Favorite";
+        ContextMenuShowHidden.IsChecked = _settings.ShowHiddenGames;
+    }
+
+    private void ContextFavorite_Click(object sender, RoutedEventArgs e)
+    {
+        var game = (GameList.SelectedItem as GameListItem)?.Game;
+        if (game is null) return;
+
+        if (_settings.FavoriteGamePaths.Contains(game.InstallDir))
+            _settings.FavoriteGamePaths.Remove(game.InstallDir);
+        else
+            _settings.FavoriteGamePaths.Add(game.InstallDir);
+
+        RefreshGameList(GameSearchBox.Text);
+    }
+
+    private void ContextHide_Click(object sender, RoutedEventArgs e)
+    {
+        var game = (GameList.SelectedItem as GameListItem)?.Game;
+        if (game is null) return;
+
+        if (!_settings.HiddenGamePaths.Contains(game.InstallDir))
+            _settings.HiddenGamePaths.Add(game.InstallDir);
+
+        if (_selectedGame == game)
+        {
+            _selectedGame = null;
+            NpiCurrentProfile.Text = "No game selected";
+            DllDetectedList.Text = "No game selected";
+            TweaksStatus.Text = "No game selected";
+            _detectedDlls = [];
+            BackupsList.Items.Clear();
+            HistoryList.Items.Clear();
+        }
+
+        RefreshGameList(GameSearchBox.Text);
+        StatusText.Text = $"Hidden: {game.Name}";
+    }
+
+    private void ContextShowHidden_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.ShowHiddenGames = ContextMenuShowHidden.IsChecked;
+        RefreshGameList(GameSearchBox.Text);
     }
 
     // --- NPI ---
@@ -381,6 +485,10 @@ public partial class MainWindow : Window
         StatusText.Text = result.Message;
         if (result.Success)
         {
+            if (!_settings.PreferredDllVersions.ContainsKey(_selectedGame.InstallDir))
+                _settings.PreferredDllVersions[_selectedGame.InstallDir] = [];
+            _settings.PreferredDllVersions[_selectedGame.InstallDir][selectedType.Detected.Type.ToString()] = selectedVersion.Record.Version;
+
             await ScanSelectedGameDllsAsync(preserveType);
             RefreshBackupsList();
         }
@@ -620,18 +728,18 @@ public partial class MainWindow : Window
 
     private void RefreshGames_Click(object sender, RoutedEventArgs e)
     {
-        var previousNames = new HashSet<string>(_allGames.Select(g => g.Name));
-        var steamGames = SteamDetectionService.DetectGames();
-        var newNames = new HashSet<string>(steamGames.Select(g => g.Name));
+        var previousPaths = new HashSet<string>(_allGames.Select(g => g.InstallDir), StringComparer.OrdinalIgnoreCase);
 
-        var added = steamGames.Where(g => !previousNames.Contains(g.Name)).ToList();
-        var removed = _allGames
-            .Where(g => g.Source == GameSource.Steam && !newNames.Contains(g.Name))
-            .ToList();
+        var detected = MergeDetectedGames();
+        var allNew = detected.Concat(_manualGames).ToList();
+        var newPaths = new HashSet<string>(allNew.Select(g => g.InstallDir), StringComparer.OrdinalIgnoreCase);
 
-        _allGames = steamGames.Concat(_manualGames).OrderBy(g => g.Name).ToList();
+        var added = allNew.Where(g => !previousPaths.Contains(g.InstallDir)).ToList();
+        var removed = _allGames.Where(g => g.Source != GameSource.Manual && !newPaths.Contains(g.InstallDir)).ToList();
 
-        if (_selectedGame is not null && !_allGames.Contains(_selectedGame))
+        _allGames = allNew.OrderBy(g => g.Name).ToList();
+
+        if (_selectedGame is not null && !newPaths.Contains(_selectedGame.InstallDir))
         {
             _selectedGame = null;
             NpiCurrentProfile.Text = "No game selected";
@@ -639,6 +747,7 @@ public partial class MainWindow : Window
             TweaksStatus.Text = "No game selected";
             _detectedDlls = [];
             BackupsList.Items.Clear();
+            HistoryList.Items.Clear();
         }
 
         RefreshGameList(GameSearchBox.Text);
@@ -649,6 +758,22 @@ public partial class MainWindow : Window
         if (parts.Count == 0) parts.Add("no changes");
 
         StatusText.Text = $"Refreshed: {_allGames.Count} games ({string.Join(", ", parts)})";
+    }
+
+    private static List<GameEntry> MergeDetectedGames()
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var merged = new List<GameEntry>();
+
+        foreach (var g in SteamDetectionService.DetectGames()
+            .Concat(EpicDetectionService.DetectGames())
+            .Concat(GogDetectionService.DetectGames()))
+        {
+            if (seen.Add(g.InstallDir))
+                merged.Add(g);
+        }
+
+        return merged;
     }
 
     // --- Settings ---
@@ -793,6 +918,20 @@ public partial class MainWindow : Window
                 TextWrapping = TextWrapping.Wrap
             }
         };
+    }
+}
+
+internal record GameListItem(GameEntry Game, bool IsFavorite)
+{
+    public override string ToString()
+    {
+        var src = Game.Source switch
+        {
+            GameSource.Epic => " [Epic]",
+            GameSource.Gog => " [GOG]",
+            _ => ""
+        };
+        return (IsFavorite ? "★ " : "") + Game.Name + src;
     }
 }
 

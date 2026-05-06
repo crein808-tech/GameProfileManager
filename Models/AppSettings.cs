@@ -14,6 +14,10 @@ public class AppSettings
     public double WindowTop { get; set; } = double.NaN;
     public bool IsMaximized { get; set; }
     public bool RefreshManifestOnStartup { get; set; } = true;
+    public bool ShowHiddenGames { get; set; } = false;
+    public List<string> HiddenGamePaths { get; set; } = [];
+    public List<string> FavoriteGamePaths { get; set; } = [];
+    public Dictionary<string, Dictionary<string, string>> PreferredDllVersions { get; set; } = [];
 }
 
 public class ManualGameEntry

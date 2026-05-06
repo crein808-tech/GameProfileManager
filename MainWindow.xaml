@@ -73,7 +73,17 @@
                         Style="{StaticResource SubtleButton}" Click="RefreshGames_Click"/>
                 <ListBox x:Name="GameList" Background="Transparent" BorderThickness="0"
                          Foreground="#CDD6F4" FontSize="13" Padding="4"
-                         SelectionChanged="GameList_SelectionChanged"/>
+                         SelectionChanged="GameList_SelectionChanged">
+                    <ListBox.ContextMenu>
+                        <ContextMenu Opened="GameContextMenu_Opened">
+                            <MenuItem x:Name="ContextMenuFavorite" Header="★ Favorite" Click="ContextFavorite_Click"/>
+                            <MenuItem x:Name="ContextMenuHide" Header="Hide Game" Click="ContextHide_Click"/>
+                            <Separator/>
+                            <MenuItem x:Name="ContextMenuShowHidden" Header="Show Hidden Games"
+                                      IsCheckable="True" Click="ContextShowHidden_Click"/>
+                        </ContextMenu>
+                    </ListBox.ContextMenu>
+                </ListBox>
             </DockPanel>
         </Border>
 
@@ -361,6 +371,26 @@
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
+            <!-- History Tab -->
+            <TabItem Header="History">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel MaxWidth="600">
+                        <TextBlock Style="{StaticResource TabHeader}" Text="DLL &amp; Profile History"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,16"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                                Chronological log of backed-up files for the selected game. Each entry reflects
+                                a snapshot taken before a DLL swap or NPI profile import.
+                            </TextBlock>
+                        </Border>
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="EVENTS (newest first)"/>
+                        <ListBox x:Name="HistoryList" Background="#313244" BorderThickness="0"
+                                 Foreground="#CDD6F4" FontSize="12" MinHeight="200" Margin="0,0,0,4"
+                                 FontFamily="Consolas"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
         </TabControl>
 
         <!-- Status Bar -->

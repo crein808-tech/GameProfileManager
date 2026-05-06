@@ -13,5 +13,7 @@ public class GameEntry
 public enum GameSource
 {
     Steam,
-    Manual
+    Manual,
+    Epic,
+    Gog
 }
