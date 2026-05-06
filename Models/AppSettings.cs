@@ -13,6 +13,7 @@ public class AppSettings
     public double WindowLeft { get; set; } = double.NaN;
     public double WindowTop { get; set; } = double.NaN;
     public bool IsMaximized { get; set; }
+    public bool RefreshManifestOnStartup { get; set; } = true;
 }
 
 public class ManualGameEntry

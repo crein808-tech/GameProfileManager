@@ -262,6 +262,67 @@
                 </ScrollViewer>
             </TabItem>
 
+            <!-- Settings Tab -->
+            <TabItem Header="Settings">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">
+                    <StackPanel MaxWidth="600">
+                        <TextBlock Style="{StaticResource TabHeader}" Text="Settings"/>
+                        <Border Background="#1E2030" CornerRadius="6" Padding="14,10" Margin="0,0,0,16"
+                                BorderBrush="#45475A" BorderThickness="1">
+                            <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
+                                Configure paths to external tools. Browse to locate each file, then click
+                                <Run FontWeight="SemiBold">Save &amp; Reload</Run> to apply — the NPI and
+                                DLSSTweaks services will reinitialize immediately without restarting the app.
+                            </TextBlock>
+                        </Border>
+
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="NPI EXECUTABLE"/>
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="SettingsNpiPath" Grid.Column="0" Margin="0,0,8,0"
+                                     ui:ControlHelper.PlaceholderText="Path to nvidiaProfileInspector.exe"/>
+                            <Button Grid.Column="1" Content="Browse" Style="{StaticResource SubtleButton}"
+                                    Click="SettingsBrowseNpi_Click" Margin="0"/>
+                        </Grid>
+
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="DLSSTWEAKS DLL"/>
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="SettingsDllPath" Grid.Column="0" Margin="0,0,8,0"
+                                     ui:ControlHelper.PlaceholderText="Path to proxy DLL (dxgi.dll)"/>
+                            <Button Grid.Column="1" Content="Browse" Style="{StaticResource SubtleButton}"
+                                    Click="SettingsBrowseDll_Click" Margin="0"/>
+                        </Grid>
+
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="DLSSTWEAKS INI"/>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="SettingsIniPath" Grid.Column="0" Margin="0,0,8,0"
+                                     ui:ControlHelper.PlaceholderText="Path to dlsstweaks.ini"/>
+                            <Button Grid.Column="1" Content="Browse" Style="{StaticResource SubtleButton}"
+                                    Click="SettingsBrowseIni_Click" Margin="0"/>
+                        </Grid>
+
+                        <TextBlock Style="{StaticResource SectionLabel}" Text="STARTUP"/>
+                        <CheckBox x:Name="SettingsRefreshManifest" Margin="0,4,0,16"
+                                  Foreground="#CDD6F4" FontSize="13"
+                                  Content="Refresh DLL manifest on startup"/>
+
+                        <Button Content="Save &amp; Reload" Style="{StaticResource AccentButton}"
+                                Click="SettingsSaveReload_Click"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
             <!-- Backups Tab -->
             <TabItem Header="Backups">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20">

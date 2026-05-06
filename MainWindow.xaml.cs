@@ -17,10 +17,10 @@ public partial class MainWindow : Window
         "GameProfileManager", "fg_cache");
 
     private readonly AppSettings _settings;
-    private readonly NpiService _npi;
+    private NpiService _npi;
     private readonly DllSwapService _dllSwap;
     private readonly BackupService _backups;
-    private readonly DlssTweaksService _tweaks;
+    private DlssTweaksService _tweaks;
     private readonly FgOverrideService _fgOverride;
     private GpuInfo? _gpu;
     private DllManifest? _manifest;
@@ -109,15 +109,27 @@ public partial class MainWindow : Window
         if (!_npi.IsAvailable)
             NpiCurrentProfile.Text = $"NPI not found at:\n{_settings.NpiExePath}";
 
-        try
+        if (_settings.RefreshManifestOnStartup)
         {
-            _manifest = await ManifestService.FetchManifestAsync();
-            ManifestStatus.Text = $"{_manifest.TotalCount} DLLs available";
+            try
+            {
+                _manifest = await ManifestService.FetchManifestAsync();
+                ManifestStatus.Text = $"{_manifest.TotalCount} DLLs available";
+            }
+            catch
+            {
+                ManifestStatus.Text = "Manifest unavailable";
+            }
         }
-        catch
+        else
         {
-            ManifestStatus.Text = "Manifest unavailable";
+            ManifestStatus.Text = "Manifest refresh disabled";
         }
+
+        SettingsNpiPath.Text = _settings.NpiExePath;
+        SettingsDllPath.Text = _settings.DlssTweaksDll;
+        SettingsIniPath.Text = _settings.DlssTweaksIni;
+        SettingsRefreshManifest.IsChecked = _settings.RefreshManifestOnStartup;
 
         PopulateFgVersionCombo();
     }
@@ -637,6 +649,63 @@ public partial class MainWindow : Window
         if (parts.Count == 0) parts.Add("no changes");
 
         StatusText.Text = $"Refreshed: {_allGames.Count} games ({string.Join(", ", parts)})";
+    }
+
+    // --- Settings ---
+
+    private void SettingsBrowseNpi_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select NPI Executable",
+            Filter = "Executable (*.exe)|*.exe|All files (*.*)|*.*",
+            FileName = SettingsNpiPath.Text
+        };
+        if (dlg.ShowDialog() == true)
+            SettingsNpiPath.Text = dlg.FileName;
+    }
+
+    private void SettingsBrowseDll_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select DLSSTweaks DLL",
+            Filter = "DLL (*.dll)|*.dll|All files (*.*)|*.*",
+            FileName = SettingsDllPath.Text
+        };
+        if (dlg.ShowDialog() == true)
+            SettingsDllPath.Text = dlg.FileName;
+    }
+
+    private void SettingsBrowseIni_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title = "Select DLSSTweaks INI",
+            Filter = "INI file (*.ini)|*.ini|All files (*.*)|*.*",
+            FileName = SettingsIniPath.Text
+        };
+        if (dlg.ShowDialog() == true)
+            SettingsIniPath.Text = dlg.FileName;
+    }
+
+    private void SettingsSaveReload_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.NpiExePath = SettingsNpiPath.Text.Trim();
+        _settings.DlssTweaksDll = SettingsDllPath.Text.Trim();
+        _settings.DlssTweaksIni = SettingsIniPath.Text.Trim();
+        _settings.RefreshManifestOnStartup = SettingsRefreshManifest.IsChecked == true;
+        SettingsService.Save(_settings);
+
+        _npi = new NpiService(_settings.NpiExePath);
+        _tweaks = new DlssTweaksService(_settings.DlssTweaksDll, _settings.DlssTweaksIni);
+
+        UpdateTweaksStatus();
+        NpiCurrentProfile.Text = _selectedGame is not null
+            ? $"Game: {_selectedGame.Name}\nPath: {_selectedGame.InstallDir}"
+            : (_npi.IsAvailable ? "No game selected" : $"NPI not found at:\n{_settings.NpiExePath}");
+
+        StatusText.Text = "Settings saved.";
     }
 
     // --- Backups ---
