@@ -54,7 +54,7 @@ public static class NpiProfileGenerator
             {
                 Name = "Frame Rate Limiter (FPS)", Category = "Sync & Frame Pacing",
                 Description = "Cap the maximum frame rate. Set to 0 for unlimited.",
-                SettingId = 0x10835002, DefaultHex = "0x00000000",
+                SettingId = 0x10834FEE, DefaultHex = "0x00000000",
                 Options =
                 [
                     new("Off", "0x00000000"),
@@ -99,7 +99,7 @@ public static class NpiProfileGenerator
             new()
             {
                 Name = "Anisotropic Filtering Mode", Category = "Texture Filtering",
-                Description = "How anisotropic filtering is applied. 'User' overrides the game's setting with the level below.",
+                Description = "(legacy — for drivers < 526.48) How anisotropic filtering is applied. Use 'AF — Combined' for drivers ≥ 526.48.",
                 SettingId = 0x10D2BB16, DefaultHex = "0x00000000",
                 Options =
                 [
@@ -148,7 +148,7 @@ public static class NpiProfileGenerator
             new()
             {
                 Name = "Antialiasing - Mode", Category = "Antialiasing",
-                Description = "Override = replace game's AA; Enhance = add to game's AA; App = let game decide.",
+                Description = "(legacy — for drivers < 526.48) Override = replace game's AA; Enhance = add to game's AA; App = let game decide. Use 'AA — Combined' for drivers ≥ 526.48.",
                 SettingId = 0x107EFC5B, DefaultHex = "0x00000000",
                 Options =
                 [
@@ -216,6 +216,237 @@ public static class NpiProfileGenerator
                 [
                     new("Off", "0x00000000"),
                     new("On (Default)", "0x00000001"),
+                ]
+            },
+
+            // --- DLSS Overrides ---
+            // ⚠ NEEDS NPI v3.0.1.12 VERIFICATION: set Preset K via NPI GUI, export, confirm value = 0x0000000B
+            new()
+            {
+                Name = "DLSS Super Resolution Override", Category = "DLSS Overrides",
+                Description = "Forces a DLSS preset per-game at the driver level. Sets the preset at the driver level. Also available in DLSSTweaks per-game .ini if you need a more robust override on titles where the driver setting is ignored.",
+                SettingId = 0x10C7D684, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Default", "0x00000000"),
+                    new("Preset A", "0x00000001"),
+                    new("Preset B", "0x00000002"),
+                    new("Preset C", "0x00000003"),
+                    new("Preset D", "0x00000004"),
+                    new("Preset E", "0x00000005"),
+                    new("Preset F", "0x00000006"),
+                    new("Preset J (transformer)", "0x0000000A"),
+                    new("Preset K (transformer)", "0x0000000B"),
+                    new("Preset L (2nd-gen transformer)", "0x0000000C"),
+                    new("Preset M (2nd-gen transformer)", "0x0000000D"),
+                ]
+            },
+            new()
+            {
+                Name = "DLSS Frame Generation Override", Category = "DLSS Overrides",
+                Description = "Forces a DLSS Frame Generation preset at the driver level. Sets the preset at the driver level. Also available in DLSSTweaks per-game .ini if you need a more robust override on titles where the driver setting is ignored.",
+                SettingId = 0x10C7D57E, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Default", "0x00000000"),
+                    new("Preset A", "0x00000001"),
+                    new("Preset B", "0x00000002"),
+                    new("Preset C", "0x00000003"),
+                    new("Preset D", "0x00000004"),
+                    new("Preset E", "0x00000005"),
+                    new("Preset F", "0x00000006"),
+                    new("Preset J (transformer)", "0x0000000A"),
+                    new("Preset K (transformer)", "0x0000000B"),
+                    new("Preset L (2nd-gen transformer)", "0x0000000C"),
+                    new("Preset M (2nd-gen transformer)", "0x0000000D"),
+                ]
+            },
+            new()
+            {
+                Name = "DLSS Ray Reconstruction Override", Category = "DLSS Overrides",
+                Description = "Forces a DLSS Ray Reconstruction preset at the driver level. Sets the preset at the driver level. Also available in DLSSTweaks per-game .ini if you need a more robust override on titles where the driver setting is ignored.",
+                SettingId = 0x10C7D86C, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Default", "0x00000000"),
+                    new("Preset A", "0x00000001"),
+                    new("Preset B", "0x00000002"),
+                    new("Preset C", "0x00000003"),
+                    new("Preset D", "0x00000004"),
+                    new("Preset E", "0x00000005"),
+                    new("Preset F", "0x00000006"),
+                    new("Preset J (transformer)", "0x0000000A"),
+                    new("Preset K (transformer)", "0x0000000B"),
+                    new("Preset L (2nd-gen transformer)", "0x0000000C"),
+                    new("Preset M (2nd-gen transformer)", "0x0000000D"),
+                ]
+            },
+            new()
+            {
+                Name = "DLSS-FG Private Flags", Category = "DLSS Overrides",
+                Description = "Frame Generation behavior flags. 'None' is the safe default.",
+                SettingId = 0x10E41DF6, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("None (Default)", "0x00000000"),
+                    new("Disable Scene Change Detection", "0x00000001"),
+                    new("Use Full-Screen Threshold Override", "0x00000002"),
+                    new("Disable SCD + FS Threshold Override", "0x00000003"),
+                ]
+            },
+
+            // --- Modern Upscaling & HDR ---
+            new()
+            {
+                Name = "Enable NIS 2.0", Category = "Modern Upscaling & HDR",
+                Description = "Enable NVIDIA Image Scaling 2.0 — a spatial upscaler + sharpening filter. Works in games without DLSS support.",
+                SettingId = 0x00ABAC21, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Off (Default)", "0x00000000"),
+                    new("On", "0x00000001"),
+                ]
+            },
+            new()
+            {
+                Name = "NIS 2.0 Sharpening", Category = "Modern Upscaling & HDR",
+                Description = "Sharpening strength for NIS 2.0 (0–100). Only active when NIS 2.0 is enabled.",
+                SettingId = 0x00ABAB21, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("0 (Off)", "0x00000000"),
+                    new("25", "0x00000019"),
+                    new("50", "0x00000032"),
+                    new("64 (Default NIS)", "0x00000040"),
+                    new("75", "0x0000004B"),
+                    new("100 (Max)", "0x00000064"),
+                ]
+            },
+            new()
+            {
+                Name = "RTX HDR Driver Flags", Category = "Modern Upscaling & HDR",
+                Description = "Enable RTX HDR for SDR games via the driver. Requires RTX GPU and HDR-capable display.",
+                SettingId = 0x00432F84, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Off", "0x00000000"),
+                    new("Enable RTX HDR", "0x00000002"),
+                    new("Enable RTX HDR + Disable Debanding", "0x00000006"),
+                    new("Debug Indicator Only", "0x00000001"),
+                ]
+            },
+            new()
+            {
+                Name = "Smooth Motion — Allowed APIs", Category = "Modern Upscaling & HDR",
+                Description = "Restrict which graphics APIs NVIDIA Smooth Motion (driver-level frame interpolation) can activate on. Requires driver ≥ 571.86.",
+                SettingId = 0xB0CC0875, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Default (None/All)", "0x00000000"),
+                    new("DX12 Only", "0x00000001"),
+                    new("DX11 Only", "0x00000002"),
+                    new("Vulkan Only", "0x00000004"),
+                    new("All APIs (DX12 + DX11 + Vulkan)", "0x00000007"),
+                ]
+            },
+            new()
+            {
+                Name = "G-SYNC Compatibility", Category = "Modern Upscaling & HDR",
+                Description = "Force enable G-SYNC Compatible mode on monitors that aren't officially validated.",
+                SettingId = 0x109DB0D3, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Off (Default)", "0x00000000"),
+                    new("On", "0x00000001"),
+                ]
+            },
+
+            // --- Antialiasing (legacy) ---
+            // These split-mode settings remain for drivers < 526.48. Use AA — Combined for newer drivers.
+            new()
+            {
+                Name = "AA — Combined (Mode + Setting)", Category = "Antialiasing",
+                Description = "Single combined antialiasing control for drivers ≥ 526.48. Replaces the legacy Antialiasing - Mode + separate sample count workflow. Leave legacy entries below for driver back-compat.",
+                SettingId = 0x10D7162F, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Application-controlled / Off", "0x00000000"),
+                    new("Override | 2x MSAA", "0x1000000E"),
+                    new("Override | 2x MSAA + 2x TrSSAA", "0x1140000E"),
+                    new("Override | 2x MSAA + 2x SGSSAA", "0x1180000E"),
+                    new("Override | 4x MSAA", "0x10000010"),
+                    new("Override | 4x MSAA + 4x TrSSAA", "0x12400010"),
+                    new("Override | 4x MSAA + 4x SGSSAA", "0x12800010"),
+                    new("Override | 8x MSAA", "0x10000025"),
+                    new("Override | 8x MSAA + 8x TrSSAA", "0x13400025"),
+                    new("Override | 8x MSAA + 8x SGSSAA", "0x13800025"),
+                    new("Override | 4x OGSSAA", "0x10000005"),
+                    new("Override | 9x OGSSAA", "0x1000000A"),
+                    new("Override | 16x OGSSAA", "0x1000000C"),
+                    new("Override | 4x OGSSAA + 2x MSAA", "0x10000019"),
+                    new("Override | 4x OGSSAA + 4x MSAA", "0x1000001A"),
+                    new("Override | 4x OGSSAA + 8x MSAA", "0x10000029"),
+                    new("Override | 8xS [1x2 SS + 4x MS]", "0x10000018"),
+                    new("Enhance | 2x MSAA", "0x2000000E"),
+                    new("Enhance | 4x MSAA", "0x20000010"),
+                    new("Enhance | 8x MSAA", "0x20000025"),
+                    new("Enhance | 4x OGSSAA", "0x20000005"),
+                    new("Enhance | 9x OGSSAA", "0x2000000A"),
+                    new("Enhance | 16x OGSSAA", "0x2000000C"),
+                    new("Enhance | 4x OGSSAA + 2x MSAA", "0x20000019"),
+                    new("Enhance | 4x OGSSAA + 4x MSAA", "0x2000001A"),
+                    new("Enhance | 4x OGSSAA + 8x MSAA", "0x20000029"),
+                ]
+            },
+            new()
+            {
+                Name = "AF — Combined (Mode + Setting)", Category = "Texture Filtering",
+                Description = "Single combined anisotropic filtering control for drivers ≥ 526.48. Replaces legacy Anisotropic Filtering Mode + Level.",
+                SettingId = 0x10E30043, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Application-controlled", "0x00000000"),
+                    new("Off [Linear]", "0x10000001"),
+                    new("2x", "0x10000002"),
+                    new("4x", "0x10000004"),
+                    new("8x", "0x10000008"),
+                    new("12x", "0x1000000C"),
+                    new("16x", "0x10000010"),
+                ]
+            },
+            new()
+            {
+                Name = "Background App Max Frame Rate", Category = "Performance",
+                Description = "Cap FPS when the game window loses focus. Useful for reducing GPU load while alt-tabbed.",
+                SettingId = 0x10835006, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Off (Unlimited)", "0x00000000"),
+                    new("30 FPS", "0x0000001E"),
+                    new("60 FPS", "0x0000003C"),
+                    new("120 FPS", "0x00000078"),
+                ]
+            },
+            new()
+            {
+                Name = "Platform Boost", Category = "Performance",
+                Description = "Enable GPU Platform Boost for laptops. Allows the driver to dynamically increase GPU clocks. Laptop GPUs only.",
+                SettingId = 0x10834FFE, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Off (Default)", "0x00000000"),
+                    new("On", "0x00000001"),
+                ]
+            },
+            new()
+            {
+                Name = "Frame Rate Monitor", Category = "Performance",
+                Description = "Enable the driver-level frame rate monitor overlay. Diagnostic use.",
+                SettingId = 0x10834F01, DefaultHex = "0x00000000",
+                Options =
+                [
+                    new("Off (Default)", "0x00000000"),
+                    new("On", "0x00000001"),
                 ]
             },
         ];
