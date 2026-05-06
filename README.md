@@ -33,13 +33,13 @@ PC gamers who tweak GPU settings typically juggle three separate tools: [NVIDIA 
 
 ### Preview Images
 
-<img width="1375" height="890" alt="Screenshot 2026-04-24 221828" src="https://github.com/user-attachments/assets/7133a7ac-e0f3-4bb2-a24a-f1cd6ba2b637" />
-<img width="644" height="743" alt="Screenshot 2026-04-24 221846" src="https://github.com/user-attachments/assets/e1248281-90da-48a2-be30-f0a85f30d133" />
-<img width="665" height="662" alt="Screenshot 2026-04-24 222030" src="https://github.com/user-attachments/assets/be20be3c-3355-401d-8d55-a56269b82973" />
-<img width="622" height="690" alt="Screenshot 2026-04-24 222048" src="https://github.com/user-attachments/assets/317edea1-20ec-42fc-82a3-bec22b0a74ae" />
+<img width="2550" height="1396" alt="NVIDIAprofile" src="https://github.com/user-attachments/assets/cf1067c7-d7d5-42a1-8657-28e38848779e" />
 
+<img width="2285" height="1331" alt="DLL Swap" src="https://github.com/user-attachments/assets/ba429f00-41f9-4558-a46d-45255ea0cedc" />
 
+<img width="2290" height="1344" alt="DLSSTweaks" src="https://github.com/user-attachments/assets/3bae2e17-11b0-44c1-9de0-6a31479d2c08" />
 
+<img width="1644" height="589" alt="Settings" src="https://github.com/user-attachments/assets/d14c1ef3-3d3f-4cc5-96e1-f0faa0d22fd7" />
 
 
 ## Requirements
