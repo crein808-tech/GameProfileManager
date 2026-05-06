@@ -13,7 +13,12 @@ public static class AntiCheatDetector
         "BEClient_x64.dll",
         "vgk.sys",
         "vanguard.exe",
-        "vgtray.exe"
+        "vgtray.exe",
+        "npggsvc.exe",
+        "gameguard.des",
+        "npgg.dll",
+        "xhunter1.sys",
+        "xhunter64.sys"
     ];
 
     private static readonly string[] DirMarkers =
@@ -84,6 +89,14 @@ public static class AntiCheatDetector
             marker.Contains("vanguard", StringComparison.OrdinalIgnoreCase) ||
             marker.Contains("vgtray", StringComparison.OrdinalIgnoreCase))
             return "Vanguard";
+
+        if (marker.Contains("npgg", StringComparison.OrdinalIgnoreCase) ||
+            marker.Contains("gameguard", StringComparison.OrdinalIgnoreCase) ||
+            marker.Contains("npggsvc", StringComparison.OrdinalIgnoreCase))
+            return "nProtect GameGuard";
+
+        if (marker.Contains("xhunter", StringComparison.OrdinalIgnoreCase))
+            return "XIGNCODE3 (BAT)";
 
         return marker;
     }
