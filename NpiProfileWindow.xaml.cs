@@ -246,14 +246,24 @@ public partial class NpiProfileWindow : Window
         }
     }
 
-    private void ApplyNow_Click(object sender, RoutedEventArgs e)
+    private async void ApplyNow_Click(object sender, RoutedEventArgs e)
     {
         var nipPath = SaveProfile();
         if (nipPath is null) return;
 
-        Clipboard.SetText(nipPath);
-        _npi.LaunchNpi();
-        EditorStatus.Text += " | NPI opened. Import > Ctrl+V > Open > Apply Changes.";
+        EditorStatus.Text = "Applying profile silently...";
+        var (success, message) = await _npi.SilentImportAsync(nipPath);
+
+        if (success)
+        {
+            EditorStatus.Text = message;
+        }
+        else
+        {
+            Clipboard.SetText(nipPath);
+            _npi.LaunchNpi();
+            EditorStatus.Text = $"{message} | Falling back: NPI opened. Import > Ctrl+V > Open > Apply Changes.";
+        }
     }
 
     private static string SanitizeFileName(string name)

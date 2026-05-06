@@ -134,7 +134,8 @@
                         </Border>
                         <TextBlock Style="{StaticResource SectionLabel}" Text="ACTIONS"/>
                         <Button Content="Build Profile" Style="{StaticResource WarnButton}" Click="NpiBuildProfile_Click"/>
-                        <Button Content="Open NPI" Style="{StaticResource AccentButton}" Click="NpiOpen_Click"/>
+                        <Button Content="Reapply Last Profile" Style="{StaticResource AccentButton}" Click="NpiReapply_Click"/>
+                        <Button Content="Open NPI" Style="{StaticResource SubtleButton}" Click="NpiOpen_Click"/>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>

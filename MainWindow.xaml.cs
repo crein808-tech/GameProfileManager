@@ -443,6 +443,38 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
+    private async void NpiReapply_Click(object sender, RoutedEventArgs e)
+    {
+        if (_selectedGame is null)
+        {
+            StatusText.Text = "Select a game first.";
+            return;
+        }
+
+        if (!_npi.IsAvailable)
+        {
+            StatusText.Text = "NPI not found — configure path in Settings.";
+            return;
+        }
+
+        var nipPath = Path.Combine(_npi.ProfilesDir, $"{SanitizeNipName(_selectedGame.Name)}_profile.nip");
+        if (!System.IO.File.Exists(nipPath))
+        {
+            StatusText.Text = "No saved profile for this game. Use Build Profile first.";
+            return;
+        }
+
+        StatusText.Text = "Applying profile...";
+        var (success, message) = await _npi.SilentImportAsync(nipPath);
+        StatusText.Text = success ? $"✔ {message}" : $"⚠ {message} — use Open NPI to apply manually.";
+    }
+
+    private static string SanitizeNipName(string name)
+    {
+        var invalid = System.IO.Path.GetInvalidFileNameChars();
+        return string.Join("_", name.Split(invalid)).Replace("..", "_");
+    }
+
     private void NpiOpen_Click(object sender, RoutedEventArgs e)
     {
         if (!_npi.IsAvailable)
