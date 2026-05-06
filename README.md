@@ -31,7 +31,7 @@ PC gamers who tweak GPU settings typically juggle three separate tools: [NVIDIA 
 - Persistent settings — remembers your manual games, tool paths, and window layout
 - DLL descriptions in dropdowns so you know what each technology does
 
-### Preview Images
+### Preview Images & Video
 
 <img width="2550" height="1396" alt="NVIDIAprofile" src="https://github.com/user-attachments/assets/cf1067c7-d7d5-42a1-8657-28e38848779e" />
 
@@ -41,6 +41,7 @@ PC gamers who tweak GPU settings typically juggle three separate tools: [NVIDIA 
 
 <img width="1644" height="589" alt="Settings" src="https://github.com/user-attachments/assets/d14c1ef3-3d3f-4cc5-96e1-f0faa0d22fd7" />
 
+https://youtu.be/GtfEI8S_gak
 
 ## Requirements
 
