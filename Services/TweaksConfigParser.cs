@@ -145,6 +145,14 @@ public static partial class TweaksConfigParser
                 Options = ["Default", "A", "B", "C", "D", "E", "F", "J", "K", "L", "M"]
             },
 
+            new()
+            {
+                Section = "DLSSQualityLevels", Key = "UltraQuality", Label = "Ultra Quality Ratio",
+                Description = "Resolution multiplier for Ultra Quality mode (0.0 - 1.0). Few titles support this — when active, gives an extra DLSS level above Quality.",
+                Type = TweaksSettingType.Dropdown, DefaultValue = "0.77",
+                Options = ["0.66666667", "0.77", "0.85", "0.9", "1.0"]
+            },
+
             // [Compatibility] section
             new()
             {
@@ -152,6 +160,13 @@ public static partial class TweaksConfigParser
                 Description = "Offset resolution axes when DLAA is active. RE Engine and Crysis 3 Remastered need -1.",
                 Type = TweaksSettingType.Dropdown, DefaultValue = "0",
                 Options = ["0", "-1", "-2"]
+            },
+            new()
+            {
+                Section = "Compatibility", Key = "DynamicResolutionMinOffset", Label = "Dyn-Res Min Offset",
+                Description = "Offset applied to dynamic-res minimum returned to the game. Some titles (e.g. Assetto Corsa Competizione) disable DLSS if min/max are equal — leave at -1 unless a game like Forspoken needs it set to 0.",
+                Type = TweaksSettingType.Dropdown, DefaultValue = "-1",
+                Options = ["-1", "0", "1"]
             },
             new()
             {
@@ -170,6 +185,14 @@ public static partial class TweaksConfigParser
                 Section = "Compatibility", Key = "DisableIniMonitoring", Label = "Disable INI Monitoring",
                 Description = "Stop DLSSTweaks from watching for INI changes during gameplay. Try if game fails to launch.",
                 Type = TweaksSettingType.Bool, DefaultValue = "false"
+            },
+
+            // [DLSSTweaks] section
+            new()
+            {
+                Section = "DLSSTweaks", Key = "BaseINI", Label = "Base INI Path (optional)",
+                Description = "Path to a central global DLSSTweaks .ini to inherit settings from. Leave blank to use only this file.",
+                Type = TweaksSettingType.Text, DefaultValue = ""
             },
         ];
     }
