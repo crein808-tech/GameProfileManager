@@ -103,25 +103,25 @@
                                 BorderBrush="#45475A" BorderThickness="1">
                             <TextBlock Foreground="#A6ADC8" FontSize="12" TextWrapping="Wrap" LineHeight="20">
                                 NVIDIA Profile Inspector lets you tweak per-game driver settings that aren't
-                                exposed in the NVIDIA Control Panel — things like texture filtering, pre-rendered
-                                frames, and SLI bits.
+                                exposed in the NVIDIA Control Panel — DLSS preset overrides, texture filtering,
+                                frame rate limits, RTX HDR, NIS sharpening, G-SYNC, and more.
                                 <LineBreak/><LineBreak/>
                                 <Run FontWeight="SemiBold" Foreground="#89B4FA">How to use:</Run>
                                 <LineBreak/>
                                 1. Select a game from the sidebar.
                                 <LineBreak/>
-                                2. Click <Run FontWeight="SemiBold">Build Profile</Run> to open the visual
-                                profile editor — pick VSync, texture filtering, power management, and other
-                                settings from dropdowns, then apply directly or save as a .nip file.
+                                2. Click <Run FontWeight="SemiBold">Build Profile</Run> to open the profile
+                                editor. Choose settings across categories (DLSS Overrides, Performance, Texture
+                                Filtering, etc.), pick a preset, then click
+                                <Run FontWeight="SemiBold">Apply Profile</Run> to apply silently — no NPI
+                                window needed. Or use <Run FontWeight="SemiBold">Save .nip File</Run> to export
+                                for later.
                                 <LineBreak/>
-                                3. Click <Run FontWeight="SemiBold">Import .nip Profile</Run> to apply an
-                                existing .nip file. A backup is saved automatically before applying.
+                                3. Click <Run FontWeight="SemiBold">Reapply Last Profile</Run> to re-import
+                                the last built profile for this game in one click — useful after driver updates.
                                 <LineBreak/>
-                                4. Click <Run FontWeight="SemiBold">Export Current Profile</Run> to save your
-                                current driver settings to a .nip file you can share or reuse.
-                                <LineBreak/>
-                                5. Click <Run FontWeight="SemiBold">Revert to Backup</Run> to undo the last
-                                import and restore your previous settings.
+                                4. Click <Run FontWeight="SemiBold">Open NPI</Run> to launch NVIDIA Profile
+                                Inspector directly for advanced manual edits.
                                 <LineBreak/><LineBreak/>
                                 <Run FontStyle="Italic">Note: NPI requires administrator access — you'll see a
                                 UAC prompt each time.</Run>
@@ -172,7 +172,8 @@
                                 backed-up DLL at any time.
                                 <LineBreak/><LineBreak/>
                                 <Run FontStyle="Italic" Foreground="#F38BA8">Games with Easy Anti-Cheat, BattlEye,
-                                or Vanguard are automatically blocked to protect your account.</Run>
+                                Vanguard, nProtect GameGuard, or XIGNCODE3 are automatically blocked to protect
+                                your account.</Run>
                             </TextBlock>
                         </Border>
                         <TextBlock Style="{StaticResource SectionLabel}" Text="DETECTED DLLs"/>
